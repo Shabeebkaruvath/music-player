@@ -44,16 +44,18 @@ body {
   font-size: 24px;
   font-weight: bold;
   margin: 20 0 20 0;
-  
 }
-.one .logo h1{
+.one .logo h1 {
   font-family: "Red Hat Mono", monospace;
-  letter-spacing: -3px; 
+  letter-spacing: -3px;
 }
-.one .artist{
+.one .artist {
   font-family: "Red Hat Mono", monospace;
-  letter-spacing: -1px; 
-  margin-bottom:20px;
+  letter-spacing: -3px;
+  display: flex;
+  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: center;
 }
 .one .img-div {
   align-items: center;
@@ -68,13 +70,13 @@ body {
   border-radius: 30px;
   width: 65%;
 }
-.song-img img[title]{
+.song-img img[title] {
   background: transparent;
   border: none;
   position: absolute;
   top: -100%;
   left: 0;
-  }
+}
 
 .one .controlcenter {
   display: flex;
@@ -83,7 +85,7 @@ body {
   flex-direction: row;
   margin-bottom: 20px;
 }
-.control-btn{
+.control-btn {
   cursor: pointer;
 }
 
@@ -91,6 +93,10 @@ body {
   width: 40px;
   height: 40px;
   margin: 0 10px;
+}
+.one .controlcenter .y-btn{
+  width: 25px;
+  height: 25px;
 }
 
 .progress-container {
@@ -147,19 +153,17 @@ body {
   margin: 0 10px;
 }
 
-
 .searchbar {
   width: 100%;
-  max-width: 500px;  
+  max-width: 500px;
   display: flex;
   position: relative;
 }
 
- 
-.vft{
+.vft {
   background: transparent;
   color: rgb(255, 255, 255);
-  padding: .400rem 0px;
+  padding: 0.4rem 0px;
   width: 100%;
   letter-spacing: 1.5px;
   margin: 10px;
@@ -168,10 +172,10 @@ body {
   border-left: none;
   border-bottom: 1px solid white;
 }
-.vft:focus{
- outline: none;
+.vft:focus {
+  outline: none;
 }
-.vft::placeholder{
+.vft::placeholder {
   color: rgb(255, 255, 255);
   letter-spacing: 1.5px;
 }
