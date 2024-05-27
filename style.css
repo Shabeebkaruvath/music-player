@@ -1,0 +1,233 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "REM", sans-serif;
+  letter-spacing: -1px;
+  font-style: normal;
+  display: flex;
+  justify-content: center;
+  color: white !important;
+  align-items: center;
+  height: 100vh;
+  background: #355c7d; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #c06c84,
+    #6c5b7b,
+    #355c7d
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #c06c84,
+    #6c5b7b,
+    #355c7d
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.one {
+  display: flex;
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+  background-color: rgba(17, 25, 40, 0.44);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.125);
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.one .logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20 0 20 0;
+  
+}
+.one .logo h1{
+  font-family: "Red Hat Mono", monospace;
+  letter-spacing: -3px; 
+}
+.one .artist{
+  font-family: "Red Hat Mono", monospace;
+  letter-spacing: -1px; 
+  margin-bottom:20px;
+}
+.one .img-div {
+  align-items: center;
+  background-color: transparent;
+  margin-bottom: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.song-img {
+  border-radius: 30px;
+  width: 65%;
+}
+.song-img img[title]{
+  background: transparent;
+  border: none;
+  position: absolute;
+  top: -100%;
+  left: 0;
+  }
+
+.one .controlcenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+.control-btn{
+  cursor: pointer;
+}
+
+.one .controlcenter img {
+  width: 40px;
+  height: 40px;
+  margin: 0 10px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.current-time,
+.end-time {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 0 10px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background-color: #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #007bff;
+  border-radius: 5px 0 0 5px;
+}
+
+.progress-handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background-color: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.current-time,
+.end-time {
+  margin: 0 10px;
+}
+
+
+.searchbar {
+  width: 100%;
+  max-width: 500px;  
+  display: flex;
+  position: relative;
+}
+
+ 
+.vft{
+  background: transparent;
+  color: rgb(255, 255, 255);
+  padding: .400rem 0px;
+  width: 100%;
+  letter-spacing: 1.5px;
+  margin: 10px;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: 1px solid white;
+}
+.vft:focus{
+ outline: none;
+}
+.vft::placeholder{
+  color: rgb(255, 255, 255);
+  letter-spacing: 1.5px;
+}
+#suggestions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  color: #ffffff;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #263f6b; /* Change background color to black */
+  border-radius: 5px;
+  font-size: larger;
+  font-family: monospace;
+  padding: 10px; /* Increase padding */
+  z-index: 1000;
+}
+
+.suggestion {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.suggestion:hover {
+  background-color: #acacac; /* Darker background color on hover */
+}
+/* Ensure only 7 results are visible at a time */
+.suggestion:nth-child(n + 8) {
+  display: none;
+}
+
+@media (max-width: 576px) {
+  .one {
+    max-width: 100%;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .one {
+    max-width: 100%;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 992px) {
+  .one {
+    max-width: 100%;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .one {
+    max-width: 90%;
+  }
+}
