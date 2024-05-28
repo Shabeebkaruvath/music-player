@@ -50,11 +50,12 @@ body {
   letter-spacing: -3px;
 }
 .one .artist {
+  text-align: center;
   font-family: "Red Hat Mono", monospace;
   letter-spacing: -3px;
   display: flex;
   margin-bottom: 20px;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
 }
 .one .img-div {
@@ -123,7 +124,7 @@ body {
   position: relative;
   flex: 1;
   height: 10px;
-  background-color: #ccc;
+  background-color: #616060;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -133,8 +134,13 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #007bff;
+  background-color: #ffffff;
   border-radius: 5px 0 0 5px;
+}
+.progress:hover{
+ 
+  background-color: #ff0000;
+ 
 }
 
 .progress-handle {
@@ -143,10 +149,21 @@ body {
   transform: translateY(-50%);
   width: 10px;
   height: 10px;
-  background-color: #007bff;
-  border-radius: 50%;
+  background-color: #ffffff;
+  border-radius: 0%;
   cursor: pointer;
 }
+.progress-handle:hover{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  background-color: #ffffff;
+  border-radius: 40%;
+  cursor: pointer;
+}
+
 
 .current-time,
 .end-time {
@@ -188,9 +205,11 @@ body {
   max-height: 200px;
   overflow-y: auto;
   background-color: #263f6b; /* Change background color to black */
-  border-radius: 5px;
+  border-radius: 30px;
   font-size: larger;
-  font-family: monospace;
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: normal;
   padding: 10px; /* Increase padding */
   z-index: 1000;
 }
