@@ -134,12 +134,12 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #ffffff;
+  background-color: #ff0000;
   border-radius: 5px 0 0 5px;
 }
 .progress:hover{
  
-  background-color: #ff0000;
+  background-color: #fd6363;
  
 }
 
@@ -150,7 +150,7 @@ body {
   width: 10px;
   height: 10px;
   background-color: #ffffff;
-  border-radius: 0%;
+  border-radius: 50%;
   cursor: pointer;
 }
 .progress-handle:hover{
@@ -160,8 +160,7 @@ body {
   width: 13px;
   height: 13px;
   background-color: #ffffff;
-  border-radius: 40%;
-  cursor: pointer;
+  cursor: pointer; 
 }
 
 
@@ -196,22 +195,33 @@ body {
   color: rgb(255, 255, 255);
   letter-spacing: 1.5px;
 }
+#clearButton {
+  padding: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  background-color: transparent;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
 #suggestions {
   position: absolute;
-  bottom: 0;
+  bottom: 50px; /* Adjusted to move it above the input field */
   left: 0;
   width: 100%;
   color: #ffffff;
   max-height: 200px;
   overflow-y: auto;
-  background-color: #263f6b; /* Change background color to black */
+  background-color: #000000; /* Changed background color to black */
   border-radius: 30px;
   font-size: larger;
   font-family: "Poppins", sans-serif;
   font-weight: 200;
   font-style: normal;
-  padding: 10px; /* Increase padding */
+  padding: 20px; /* Increased padding */
   z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added box-shadow for better visibility */
 }
 
 .suggestion {
@@ -223,10 +233,7 @@ body {
 .suggestion:hover {
   background-color: #acacac; /* Darker background color on hover */
 }
-/* Ensure only 7 results are visible at a time */
-.suggestion:nth-child(n + 8) {
-  display: none;
-}
+
 
 @media (max-width: 576px) {
   .one {

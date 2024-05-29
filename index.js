@@ -14,6 +14,8 @@ const progress = document.querySelector(".progress");
 const progressHandle = document.querySelector(".progress-handle");
 const currentTimeSpan = document.querySelector(".current-time");
 const endTimeSpan = document.querySelector(".end-time");
+const searchclear = document.getElementById("clearButton");
+
 
 const suggestionsContainer = document.getElementById("suggestions");
 suggestionsContainer.style.display = "none";
@@ -68,6 +70,7 @@ function displaySuggestions() {
   searchResults.forEach((result, index) => {
     const suggestion = document.createElement("div");
     suggestion.style.borderBottom = "1px solid white";
+    suggestion.style.cursor ="pointer";
     suggestion.textContent = `${result.name} - ${result.artists[0].name}`;
     suggestion.addEventListener("click", () => playSong(index));
     suggestionsContainer.appendChild(suggestion);
@@ -260,11 +263,27 @@ document.body.addEventListener("click", (event) => {
   }
 });
 audioPlay.addEventListener("ended", () => {
-  // Increment the current song index
-  currentSongIndex = (currentSongIndex + 1) % searchResults.length;
-  // Play the next song
+  let nextSongIndex = (currentSongIndex + 1) % searchResults.length;
+
+  // Find the next available song
+  while (searchResults[nextSongIndex].preview_url === null) {
+    nextSongIndex = (nextSongIndex + 1) % searchResults.length;
+
+    // If all songs are unavailable, exit the loop
+    if (nextSongIndex === currentSongIndex) {
+      return;
+    }
+  }
+
+  currentSongIndex = nextSongIndex;
   playSong(currentSongIndex);
 });
 // Play the initial song
+
+//search bar clear 
+
+searchclear.addEventListener('click', ()=>{
+  document.getElementById('search').value = '';
+})
 
 playSong(currentSongIndex);
