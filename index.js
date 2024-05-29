@@ -64,6 +64,75 @@ async function searchForSong(query) {
   searchResults = data.tracks.items;
   displaySuggestions();
 }
+let searchOffset = 0; // Keep track of the offset for pagination
+let isLoading = false; // Flag to prevent multiple simultaneous requests
+
+// Function to check if the user has scrolled to the bottom of the page
+function isScrolledToBottom() {
+  return window.innerHeight + window.scrollY >= document.body.offsetHeight;
+}
+
+// Function to handle loading more suggestions when user scrolls to bottom
+function handleScroll() {
+  if (!isLoading && isScrolledToBottom()) {
+    isLoading = true;
+    loadMoreSuggestions();
+  }
+}
+
+// Add scroll event listener to window
+window.addEventListener('scroll', handleScroll);
+
+async function searchForSong(query) {
+  const accessToken = await authenticateWithSpotify();
+  const response = await fetch(
+    `https://api.spotify.com/v1/search?q=${query}&type=track&limit=20&offset=${searchOffset}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const data = await response.json();
+  searchResults = data.tracks.items;
+  displaySuggestions();
+}
+
+// Function to display search suggestions
+function displaySuggestions() {
+  suggestionsContainer.style.display = "grid";
+  searchResults.forEach((result, index) => {
+    const suggestion = document.createElement("div");
+    suggestion.style.borderBottom = "1px solid white";
+    suggestion.style.cursor = "pointer";
+    suggestion.textContent = `${result.name} - ${result.artists[0].name}`;
+    suggestion.addEventListener("click", () => playSong(index));
+    suggestionsContainer.appendChild(suggestion);
+  });
+  isLoading = false; // Reset loading flag after displaying suggestions
+}
+
+// Event listener for the search input field
+searchInput.addEventListener("input", (event) => {
+  event.preventDefault();
+  const query = searchInput.value.trim();
+  if (query) {
+    searchOffset = 0; // Reset offset when new search is performed
+    suggestionsContainer.innerHTML = ""; // Clear previous suggestions
+    searchForSong(query);
+  } else {
+    suggestionsContainer.innerHTML = "";
+  }
+});
+
+// Function to load more suggestions
+function loadMoreSuggestions() {
+  searchOffset += 5; // Increment offset to load next page of results
+  const query = searchInput.value.trim();
+  if (query) {
+    searchForSong(query);
+  }
+}
 
 // Function to display search suggestions
 function displaySuggestions() {
@@ -80,6 +149,7 @@ function displaySuggestions() {
 }
 
 // Function to play a selected song
+ 
 async function playSong(index) {
   const song = searchResults[index];
   currentSongIndex = index;
@@ -90,7 +160,11 @@ async function playSong(index) {
   audioPlay.play();
   musicPlay.style.display = "none";
   musicPause.style.display = "inline";
+
+  // Hide suggestions when a song is played
+  suggestionsContainer.style.display = "none";
 }
+
 
 // Function to update the progress bar
 let isDragging = false;
