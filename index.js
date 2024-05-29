@@ -5,29 +5,31 @@ const musicNext = document.getElementById("next");
 const musicPre = document.getElementById("pre");
 const musicName = document.getElementById("song-name");
 const musicArtist = document.getElementById("artist-name");
-const musicshuffle = document.getElementById("shuffle");
-const musicrepeat = document.getElementById("repeat");
-const musicimg = document.getElementById("song-img");
+const musicShuffle = document.getElementById("shuffle");
+const musicRepeat = document.getElementById("repeat");
+const musicImg = document.getElementById("song-img");
 const progressContainer = document.querySelector(".progress-container");
 const progressBar = document.querySelector(".progress-bar");
 const progress = document.querySelector(".progress");
 const progressHandle = document.querySelector(".progress-handle");
 const currentTimeSpan = document.querySelector(".current-time");
 const endTimeSpan = document.querySelector(".end-time");
-const searchclear = document.getElementById("clearButton");
-
-
+const searchClear = document.getElementById("clearButton");
+const searchInput = document.getElementById("search");
 const suggestionsContainer = document.getElementById("suggestions");
+
 suggestionsContainer.style.display = "none";
 
 let currentSongIndex = 0;
 let searchResults = [];
+let isDragging = false;
+let shuffle = false; // Shuffle state
+let repeatState = 0; // 0: no repeat, 1: repeat all, 2: repeat one
 
+// Function to authenticate with Spotify and get the access token
 async function authenticateWithSpotify() {
   const clientId = "0d62b3b520ec4b928470f059885ed75c";
   const clientSecret = "59aff701912f4f0185d9c4a14bc8d482";
-  const redirectUri = "http://127.0.0.1:5500/index.html";
-  const scope = "user-read-private user-read-email";
 
   // Base64 encode the client ID and client secret
   const encodedAuth = btoa(`${clientId}:${clientSecret}`);
@@ -44,11 +46,10 @@ async function authenticateWithSpotify() {
   });
 
   const data = await response.json();
-  const accessToken = data.access_token;
-
-  return accessToken;
+  return data.access_token;
 }
 
+// Function to search for songs on Spotify
 async function searchForSong(query) {
   const accessToken = await authenticateWithSpotify();
   const response = await fetch(
@@ -64,47 +65,34 @@ async function searchForSong(query) {
   displaySuggestions();
 }
 
+// Function to display search suggestions
 function displaySuggestions() {
   suggestionsContainer.style.display = "grid";
   suggestionsContainer.innerHTML = "";
   searchResults.forEach((result, index) => {
     const suggestion = document.createElement("div");
     suggestion.style.borderBottom = "1px solid white";
-    suggestion.style.cursor ="pointer";
+    suggestion.style.cursor = "pointer";
     suggestion.textContent = `${result.name} - ${result.artists[0].name}`;
     suggestion.addEventListener("click", () => playSong(index));
     suggestionsContainer.appendChild(suggestion);
   });
 }
 
+// Function to play a selected song
 async function playSong(index) {
   const song = searchResults[index];
+  currentSongIndex = index;
   musicName.innerHTML = song.name;
   musicArtist.innerHTML = song.artists[0].name;
   audioPlay.src = song.preview_url;
-  musicimg.src = song.album.images[0].url;
+  musicImg.src = song.album.images[0].url;
   audioPlay.play();
   musicPlay.style.display = "none";
   musicPause.style.display = "inline";
 }
 
-
-//Song Progress bar funtion
-// Song Progress bar function
-audioPlay.addEventListener("loadedmetadata", () => {
-  // Update the end-time span with the duration of the audio
-  endTimeSpan.textContent = formatTime(audioPlay.duration);
-});
-
-audioPlay.addEventListener("timeupdate", updateProgressBar);
-
-progressContainer.addEventListener("click", (e) => {
-  const clickX = e.offsetX;
-  const width = progressContainer.clientWidth;
-  const duration = audioPlay.duration;
-  audioPlay.currentTime = (clickX / width) * duration;
-});
-
+// Function to update the progress bar
 function updateProgressBar() {
   const currentTime = audioPlay.currentTime;
   const duration = audioPlay.duration;
@@ -112,20 +100,19 @@ function updateProgressBar() {
   progress.style.width = `${progressPercent}%`;
   progressHandle.style.left = `${progressPercent}%`;
   currentTimeSpan.textContent = formatTime(currentTime);
-
-  requestAnimationFrame(updateProgressBar);
+  if (!isDragging) {
+    requestAnimationFrame(updateProgressBar);
+  }
 }
 
+// Format the time for display
 function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60);
   seconds = Math.floor(seconds % 60);
-  if (seconds < 10) {
-    seconds = `0${seconds}`;
-  }
-  return `${minutes}:${seconds}`;
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
-let isDragging = false;
+// Event listener for mouse events to handle progress bar dragging
 progressHandle.addEventListener("mousedown", () => {
   isDragging = true;
 });
@@ -144,21 +131,14 @@ document.addEventListener("mousemove", (e) => {
 document.addEventListener("mouseup", () => {
   isDragging = false;
 });
-//Song Progress bar funtion
 
-
-
-// Initially hide the audio element
-audioPlay.style.display = "none";
-
-// Event listener for the play button
+// Event listeners for play and pause buttons
 musicPlay.addEventListener("click", () => {
   audioPlay.play();
   musicPlay.style.display = "none";
   musicPause.style.display = "inline";
 });
 
-// Event listener for the pause button
 musicPause.addEventListener("click", () => {
   audioPlay.pause();
   musicPlay.style.display = "inline";
@@ -166,87 +146,64 @@ musicPause.addEventListener("click", () => {
 });
 
 // Event listener for the previous button
-// Event listener for the previous button
 musicPre.addEventListener("click", () => {
-  let previousSongIndex = currentSongIndex;
-
-  // Find the previous available song
   do {
-    previousSongIndex =
-      (previousSongIndex - 1 + searchResults.length) % searchResults.length;
-    // If all songs are unavailable, exit the loop
-    if (previousSongIndex === currentSongIndex) {
-      return;
-    }
-  } while (searchResults[previousSongIndex].preview_url === null);
-
-  // Update the current song index and play the previous song
-  currentSongIndex = previousSongIndex;
+    currentSongIndex = (currentSongIndex - 1 + searchResults.length) % searchResults.length;
+  } while (searchResults[currentSongIndex].preview_url === null);
   playSong(currentSongIndex);
-});
-
-// Initialize shuffle state to true
-let shuffle = true;
-
-musicshuffle.addEventListener("click", () => {
-  if (shuffle) {
-    shuffle = !shuffle;
-
-    musicshuffle.src = "img/shuffle-active.png";
-  } else {
-    shuffle = !shuffle;
-
-    musicshuffle.src = "img/shuffle.png";
-  }
-});
-
-// Add an event listener to the music shuffle button
-let one = 'img/repeat.png';
-let two = 'img/repeat-active.png';
-let three = 'img/repeat-one.png';
- 
-
-musicrepeat.addEventListener("click", () => {
-    const currentSrc = musicrepeat.src.split('/').pop(); // Get only the file name part
-
-    if (currentSrc === one.split('/').pop()) {
-        musicrepeat.src = two;
-    } else if (currentSrc === two.split('/').pop()) {
-        musicrepeat.src = three;
-    } else if (currentSrc === three.split('/').pop()) {
-        musicrepeat.src = one;
-    }
 });
 
 // Event listener for the next button
 musicNext.addEventListener("click", () => {
-  let nextSongIndex = (currentSongIndex + 1) % searchResults.length;
-
-  // Find the next available song
-  while (searchResults[nextSongIndex].preview_url === null) {
-    nextSongIndex = (nextSongIndex + 1) % searchResults.length;
-
-    // If all songs are unavailable, exit the loop
-    if (nextSongIndex === currentSongIndex) {
-      return;
-    }
-  }
-
-  currentSongIndex = nextSongIndex;
+  do {
+    currentSongIndex = (currentSongIndex + 1) % searchResults.length;
+  } while (searchResults[currentSongIndex].preview_url === null);
   playSong(currentSongIndex);
 });
 
-//search function
-const searchInput = document.getElementById("search");
+// Event listener for shuffle button
+musicShuffle.addEventListener("click", () => {
+  shuffle = !shuffle;
+  musicShuffle.src = shuffle ? "img/shuffle-active.png" : "img/shuffle.png";
+});
 
-// Add an event listener to the input field
+// Event listener for repeat button
+musicRepeat.addEventListener("click", () => {
+  repeatState = (repeatState + 1) % 3;
+  switch (repeatState) {
+    case 0:
+      musicRepeat.src = "img/repeat.png";
+      break;
+    case 1:
+      musicRepeat.src = "img/repeat-active.png";
+      break;
+    case 2:
+      musicRepeat.src = "img/repeat-one.png";
+      break;
+  }
+});
 
+// Handle song end event
+audioPlay.addEventListener("ended", () => {
+  if (repeatState === 2) {
+    audioPlay.currentTime = 0;
+    audioPlay.play();
+  } else {
+    let nextSongIndex = (currentSongIndex + 1) % searchResults.length;
+    while (searchResults[nextSongIndex].preview_url === null) {
+      nextSongIndex = (nextSongIndex + 1) % searchResults.length;
+      if (nextSongIndex === currentSongIndex) {
+        return;
+      }
+    }
+    playSong(nextSongIndex);
+  }
+});
+
+// Event listener for the search input field
 searchInput.addEventListener("input", (event) => {
-  // Prevent the default form submission behavior
   event.preventDefault();
-
-  // This function will be called when the input field value changes
-  const query = searchInput.value;
+  const query = searchInput.value.trim();
   if (query) {
     searchForSong(query);
   } else {
@@ -254,36 +211,27 @@ searchInput.addEventListener("input", (event) => {
   }
 });
 
+// Hide suggestions when clicking outside
 document.body.addEventListener("click", (event) => {
-  const suggestionDiv = document.getElementById("suggestions");
-  // Check if the click target is not inside the suggestion div
-  if (!suggestionDiv.contains(event.target) && event.target !== searchInput) {
-    // Hide the suggestion div
-    suggestionDiv.style.display = "none";
+  if (!suggestionsContainer.contains(event.target) && event.target !== searchInput) {
+    suggestionsContainer.style.display = "none";
   }
 });
-audioPlay.addEventListener("ended", () => {
-  let nextSongIndex = (currentSongIndex + 1) % searchResults.length;
 
-  // Find the next available song
-  while (searchResults[nextSongIndex].preview_url === null) {
-    nextSongIndex = (nextSongIndex + 1) % searchResults.length;
-
-    // If all songs are unavailable, exit the loop
-    if (nextSongIndex === currentSongIndex) {
-      return;
-    }
-  }
-
-  currentSongIndex = nextSongIndex;
-  playSong(currentSongIndex);
+// Clear search input on button click
+searchClear.addEventListener("click", () => {
+  searchInput.value = '';
+  suggestionsContainer.innerHTML = "";
+  suggestionsContainer.style.display = "none";
 });
+
+// Event listener to update end time on metadata load
+audioPlay.addEventListener("loadedmetadata", () => {
+  endTimeSpan.textContent = formatTime(audioPlay.duration);
+});
+
+// Initially hide the audio element
+audioPlay.style.display = "none";
+
 // Play the initial song
-
-//search bar clear 
-
-searchclear.addEventListener('click', ()=>{
-  document.getElementById('search').value = '';
-})
-
 playSong(currentSongIndex);
