@@ -22,7 +22,7 @@ suggestionsContainer.style.display = "none";
 
 let currentSongIndex = 0;
 let searchResults = [];
-let isDragging = false;
+ 
 let shuffle = false; // Shuffle state
 let repeatState = 0; // 0: no repeat, 1: repeat all, 2: repeat one
 
@@ -93,45 +93,55 @@ async function playSong(index) {
 }
 
 // Function to update the progress bar
-function updateProgressBar() {
-  const currentTime = audioPlay.currentTime;
-  const duration = audioPlay.duration;
-  const progressPercent = (currentTime / duration) * 100;
-  progress.style.width = `${progressPercent}%`;
-  progressHandle.style.left = `${progressPercent}%`;
-  currentTimeSpan.textContent = formatTime(currentTime);
-  if (!isDragging) {
-    requestAnimationFrame(updateProgressBar);
-  }
-}
+let isDragging = false;
 
-// Format the time for display
-function formatTime(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  seconds = Math.floor(seconds % 60);
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
+    audioPlay.addEventListener('loadedmetadata', () => {
+      endTimeSpan.textContent = formatTime(audioPlay.duration);
+    });
 
-// Event listener for mouse events to handle progress bar dragging
-progressHandle.addEventListener("mousedown", () => {
-  isDragging = true;
-});
+    audioPlay.addEventListener('timeupdate', () => {
+      updateProgressBar();
+    });
 
-document.addEventListener("mousemove", (e) => {
-  if (isDragging) {
-    const rect = progressContainer.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const width = progressContainer.clientWidth;
-    const newTime = (offsetX / width) * audioPlay.duration;
-    audioPlay.currentTime = Math.max(0, Math.min(newTime, audioPlay.duration));
-    updateProgressBar();
-  }
-});
+    // Function to update the progress bar
+    function updateProgressBar() {
+      const currentTime = audioPlay.currentTime;
+      const duration = audioPlay.duration;
+      const progressPercent = (currentTime / duration) * 100;
+      progress.style.width = `${progressPercent}%`;
+      progressHandle.style.left = `${progressPercent}%`;
+      currentTimeSpan.textContent = formatTime(currentTime);
+      if (!isDragging) {
+        requestAnimationFrame(updateProgressBar);
+      }
+    }
 
-document.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+    // Format the time for display
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      seconds = Math.floor(seconds % 60);
+      return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
 
+    // Event listener for mouse events to handle progress bar dragging
+    progressHandle.addEventListener('mousedown', () => {
+      isDragging = true;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const rect = progressContainer.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const width = progressContainer.clientWidth;
+        const newTime = (offsetX / width) * audioPlay.duration;
+        audioPlay.currentTime = Math.max(0, Math.min(newTime, audioPlay.duration));
+        updateProgressBar();
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
 // Event listeners for play and pause buttons
 musicPlay.addEventListener("click", () => {
   audioPlay.play();
