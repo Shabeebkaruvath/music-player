@@ -9,19 +9,9 @@ body {
   color: white !important;
   align-items: center;
   height: 100vh;
-  background: #355c7d; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to right,
-    #c06c84,
-    #6c5b7b,
-    #355c7d
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to right,
-    #c06c84,
-    #6c5b7b,
-    #355c7d
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  
+background: #6C9CC5;
+background: linear-gradient(135deg, #6C9CC5, #09467D);
 }
 
 .one {
@@ -47,12 +37,12 @@ body {
 }
 .one .logo h1 {
   font-family: "Red Hat Mono", monospace;
-  letter-spacing: -3px;
+  letter-spacing: -5px;
 }
 .one .artist {
   text-align: center;
   font-family: "Red Hat Mono", monospace;
-  letter-spacing: -3px;
+
   display: flex;
   margin-bottom: 20px;
   flex-direction: column-reverse;
@@ -68,7 +58,7 @@ body {
   justify-content: center;
 }
 .song-img {
-  border-radius: 30px;
+  border-radius: 20px;
   width: 65%;
 }
 .song-img img[title] {
@@ -89,13 +79,18 @@ body {
 .control-btn {
   cursor: pointer;
 }
+.control-btn:hover {
+  background-color: #355c7d;
+  border-radius: 45%;
+  cursor: pointer;
+}
 
 .one .controlcenter img {
   width: 40px;
   height: 40px;
   margin: 0 10px;
 }
-.one .controlcenter .y-btn{
+.one .controlcenter .y-btn {
   width: 25px;
   height: 25px;
 }
@@ -137,10 +132,8 @@ body {
   background-color: #ff0000;
   border-radius: 5px 0 0 5px;
 }
-.progress:hover{
- 
+.progress:hover {
   background-color: #fd6363;
- 
 }
 
 .progress-handle {
@@ -153,16 +146,15 @@ body {
   border-radius: 50%;
   cursor: pointer;
 }
-.progress-handle:hover{
+.progress-handle:hover {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   width: 13px;
   height: 13px;
   background-color: #ffffff;
-  cursor: pointer; 
+  cursor: pointer;
 }
-
 
 .current-time,
 .end-time {
@@ -209,18 +201,21 @@ body {
   position: absolute;
   top: 50px;
   width: 100%;
-  color: #ffffff;
+  color: #000000;
   max-height: 350px;
   overflow-y: auto;
-  background-color: #000000;
   border-radius: 30px;
   font-size: larger;
-  font-family: "Poppins", sans-serif;
-  font-weight: 200;
+  font-family: sans-serif;
   font-style: normal;
   padding: 20px;
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added box-shadow for better visibility */
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 1);
 }
 
 .suggestion {
@@ -232,7 +227,6 @@ body {
 .suggestion:hover {
   background-color: #acacac; /* Darker background color on hover */
 }
-
 
 @media (max-width: 576px) {
   .one {

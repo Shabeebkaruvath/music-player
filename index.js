@@ -26,6 +26,8 @@ let searchResults = [];
 let shuffle = false; // Shuffle state
 let repeatState = 0; // 0: no repeat, 1: repeat all, 2: repeat one
 
+ 
+
 // Function to authenticate with Spotify and get the access token
 async function authenticateWithSpotify() {
   const clientId = "0d62b3b520ec4b928470f059885ed75c";
@@ -34,21 +36,22 @@ async function authenticateWithSpotify() {
   // Base64 encode the client ID and client secret
   const encodedAuth = btoa(`${clientId}:${clientSecret}`);
 
+  // Make a POST request to the Spotify token endpoint
   const response = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${encodedAuth}`,
+      "Content-Type": "application/x-www-form-urlencoded", // The request body is URL-encoded
+      Authorization: `Basic ${encodedAuth}`, // Include the Base64 encoded credentials in the Authorization header
     },
     body: new URLSearchParams({
-      grant_type: "client_credentials",
+      grant_type: "client_credentials", // Specify the grant type for client credentials flow
     }),
   });
 
+  // Parse the JSON response to get the access token
   const data = await response.json();
-  return data.access_token;
+  return data.access_token; // Return the access token
 }
-
 // Function to search for songs on Spotify
 async function searchForSong(query) {
   const accessToken = await authenticateWithSpotify();
@@ -313,6 +316,12 @@ searchClear.addEventListener("click", () => {
 audioPlay.addEventListener("loadedmetadata", () => {
   endTimeSpan.textContent = formatTime(audioPlay.duration);
 });
+
+//search null,suggestion null
+
+if(searchInput.value ===""){
+  suggestionsContainer.style.display = "none";
+}
 
 // Initially hide the audio element
 audioPlay.style.display = "none";
