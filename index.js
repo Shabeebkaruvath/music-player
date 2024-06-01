@@ -325,6 +325,19 @@ if(searchInput.value ===""){
 
 // Initially hide the audio element
 audioPlay.style.display = "none";
+document.addEventListener('focusin', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+  }
+});
+
+document.addEventListener('focusout', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = '';
+      document.body.style.width = '';
+  }
+});
 
 // Play the initial song
 playSong(currentSongIndex);
