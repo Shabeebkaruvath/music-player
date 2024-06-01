@@ -227,7 +227,36 @@ background: linear-gradient(135deg, #6C9CC5, #09467D);
 .suggestion:hover {
   background-color: #acacac; /* Darker background color on hover */
 }
+  /* Styling the button to look like a Cupertino button */
+  #download {
+    background-color: #007AFF; /* Typical iOS blue */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto; /* Centers the button horizontally */
+    transition: background-color 0.3s ease; /* Adding transition for smooth color change */
+  }
 
+  #download:focus {
+    outline: none; /* Removes the default focus outline */
+  }
+
+  /* Adding a subtle hover effect */
+  #download:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+  }
+
+  /* Making the button responsive */
+  @media (max-width: 600px) {
+    #download {
+      font-size: 14px;
+      padding: 8px 16px;
+    }
+  }
 @media (max-width: 576px) {
   .one {
     max-width: 100%;

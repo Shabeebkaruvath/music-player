@@ -17,75 +17,37 @@ const endTimeSpan = document.querySelector(".end-time");
 const searchClear = document.getElementById("clearButton");
 const searchInput = document.getElementById("search");
 const suggestionsContainer = document.getElementById("suggestions");
+const downloadButton = document.getElementById("download");
 
 suggestionsContainer.style.display = "none";
 
 let currentSongIndex = 0;
 let searchResults = [];
- 
 let shuffle = false; // Shuffle state
 let repeatState = 0; // 0: no repeat, 1: repeat all, 2: repeat one
-
- 
+let searchOffset = 0; // Keep track of the offset for pagination
+let isLoading = false; // Flag to prevent multiple simultaneous requests
 
 // Function to authenticate with Spotify and get the access token
 async function authenticateWithSpotify() {
   const clientId = "0d62b3b520ec4b928470f059885ed75c";
   const clientSecret = "59aff701912f4f0185d9c4a14bc8d482";
-
-  // Base64 encode the client ID and client secret
   const encodedAuth = btoa(`${clientId}:${clientSecret}`);
-
-  // Make a POST request to the Spotify token endpoint
   const response = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded", // The request body is URL-encoded
-      Authorization: `Basic ${encodedAuth}`, // Include the Base64 encoded credentials in the Authorization header
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${encodedAuth}`,
     },
     body: new URLSearchParams({
-      grant_type: "client_credentials", // Specify the grant type for client credentials flow
+      grant_type: "client_credentials",
     }),
   });
-
-  // Parse the JSON response to get the access token
   const data = await response.json();
-  return data.access_token; // Return the access token
+  return data.access_token;
 }
+
 // Function to search for songs on Spotify
-async function searchForSong(query) {
-  const accessToken = await authenticateWithSpotify();
-  const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${query}&type=track`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-  const data = await response.json();
-  searchResults = data.tracks.items;
-  displaySuggestions();
-}
-let searchOffset = 0; // Keep track of the offset for pagination
-let isLoading = false; // Flag to prevent multiple simultaneous requests
-
-// Function to check if the user has scrolled to the bottom of the page
-function isScrolledToBottom() {
-  return window.innerHeight + window.scrollY >= document.body.offsetHeight;
-}
-
-// Function to handle loading more suggestions when user scrolls to bottom
-function handleScroll() {
-  if (!isLoading && isScrolledToBottom()) {
-    isLoading = true;
-    loadMoreSuggestions();
-  }
-}
-
-// Add scroll event listener to window
-window.addEventListener('scroll', handleScroll);
-
 async function searchForSong(query) {
   const accessToken = await authenticateWithSpotify();
   const response = await fetch(
@@ -104,6 +66,7 @@ async function searchForSong(query) {
 // Function to display search suggestions
 function displaySuggestions() {
   suggestionsContainer.style.display = "grid";
+  suggestionsContainer.innerHTML = "";
   searchResults.forEach((result, index) => {
     const suggestion = document.createElement("div");
     suggestion.style.borderBottom = "1px solid white";
@@ -125,34 +88,38 @@ searchInput.addEventListener("input", (event) => {
     searchForSong(query);
   } else {
     suggestionsContainer.innerHTML = "";
+    downloadButton.style.display = "none"; // Hide download button when there's no search
   }
 });
 
 // Function to load more suggestions
 function loadMoreSuggestions() {
-  searchOffset += 5; // Increment offset to load next page of results
+  searchOffset += 20; // Increment offset to load next page of results
   const query = searchInput.value.trim();
   if (query) {
     searchForSong(query);
   }
 }
 
-// Function to display search suggestions
-function displaySuggestions() {
-  suggestionsContainer.style.display = "grid";
-  suggestionsContainer.innerHTML = "";
-  searchResults.forEach((result, index) => {
-    const suggestion = document.createElement("div");
-    suggestion.style.borderBottom = "1px solid white";
-    suggestion.style.cursor = "pointer";
-    suggestion.textContent = `${result.name} - ${result.artists[0].name}`;
-    suggestion.addEventListener("click", () => playSong(index));
-    suggestionsContainer.appendChild(suggestion);
-  });
+// Add scroll event listener to window
+window.addEventListener('scroll', () => {
+  if (!isLoading && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
+    isLoading = true;
+    loadMoreSuggestions();
+  }
+});
+
+// Function to handle song download
+function downloadSong(url, name) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 // Function to play a selected song
- 
 async function playSong(index) {
   const song = searchResults[index];
   currentSongIndex = index;
@@ -164,61 +131,68 @@ async function playSong(index) {
   musicPlay.style.display = "none";
   musicPause.style.display = "inline";
 
+  // Show download button when a song is played
+  if (song.preview_url) {
+    downloadButton.style.display = "inline";
+    downloadButton.onclick = () => downloadSong(song.preview_url, `${song.name}.mp3`);
+  } else {
+    downloadButton.style.display = "none";
+  }
+
   // Hide suggestions when a song is played
   suggestionsContainer.style.display = "none";
 }
 
-
 // Function to update the progress bar
 let isDragging = false;
 
-    audioPlay.addEventListener('loadedmetadata', () => {
-      endTimeSpan.textContent = formatTime(audioPlay.duration);
-    });
+audioPlay.addEventListener('loadedmetadata', () => {
+  endTimeSpan.textContent = formatTime(audioPlay.duration);
+});
 
-    audioPlay.addEventListener('timeupdate', () => {
-      updateProgressBar();
-    });
+audioPlay.addEventListener('timeupdate', () => {
+  updateProgressBar();
+});
 
-    // Function to update the progress bar
-    function updateProgressBar() {
-      const currentTime = audioPlay.currentTime;
-      const duration = audioPlay.duration;
-      const progressPercent = (currentTime / duration) * 100;
-      progress.style.width = `${progressPercent}%`;
-      progressHandle.style.left = `${progressPercent}%`;
-      currentTimeSpan.textContent = formatTime(currentTime);
-      if (!isDragging) {
-        requestAnimationFrame(updateProgressBar);
-      }
-    }
+function updateProgressBar() {
+  const currentTime = audioPlay.currentTime;
+  const duration = audioPlay.duration;
+  const progressPercent = (currentTime / duration) * 100;
+  progress.style.width = `${progressPercent}%`;
+  progressHandle.style.left = `${progressPercent}%`;
+  currentTimeSpan.textContent = formatTime(currentTime);
+  if (!isDragging) {
+    requestAnimationFrame(updateProgressBar);
+  }
+}
 
-    // Format the time for display
-    function formatTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      seconds = Math.floor(seconds % 60);
-      return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    }
+// Format the time for display
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  seconds = Math.floor(seconds % 60);
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+}
 
-    // Event listener for mouse events to handle progress bar dragging
-    progressHandle.addEventListener('mousedown', () => {
-      isDragging = true;
-    });
+// Event listener for mouse events to handle progress bar dragging
+progressHandle.addEventListener('mousedown', () => {
+  isDragging = true;
+});
 
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        const rect = progressContainer.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const width = progressContainer.clientWidth;
-        const newTime = (offsetX / width) * audioPlay.duration;
-        audioPlay.currentTime = Math.max(0, Math.min(newTime, audioPlay.duration));
-        updateProgressBar();
-      }
-    });
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    const rect = progressContainer.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const width = progressContainer.clientWidth;
+    const newTime = (offsetX / width) * audioPlay.duration;
+    audioPlay.currentTime = Math.max(0, Math.min(newTime, audioPlay.duration));
+    updateProgressBar();
+  }
+});
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+
 // Event listeners for play and pause buttons
 musicPlay.addEventListener("click", () => {
   audioPlay.play();
@@ -270,7 +244,7 @@ musicRepeat.addEventListener("click", () => {
   }
 });
 
-// Handle song end event
+// Function to handle song end event
 audioPlay.addEventListener("ended", () => {
   if (repeatState === 2) {
     audioPlay.currentTime = 0;
@@ -287,24 +261,6 @@ audioPlay.addEventListener("ended", () => {
   }
 });
 
-// Event listener for the search input field
-searchInput.addEventListener("input", (event) => {
-  event.preventDefault();
-  const query = searchInput.value.trim();
-  if (query) {
-    searchForSong(query);
-  } else {
-    suggestionsContainer.innerHTML = "";
-  }
-});
-
-// Hide suggestions when clicking outside
-document.body.addEventListener("click", (event) => {
-  if (!suggestionsContainer.contains(event.target) && event.target !== searchInput) {
-    suggestionsContainer.style.display = "none";
-  }
-});
-
 // Clear search input on button click
 searchClear.addEventListener("click", () => {
   searchInput.value = '';
@@ -312,30 +268,20 @@ searchClear.addEventListener("click", () => {
   suggestionsContainer.style.display = "none";
 });
 
-// Event listener to update end time on metadata load
-audioPlay.addEventListener("loadedmetadata", () => {
-  endTimeSpan.textContent = formatTime(audioPlay.duration);
-});
-
-//search null,suggestion null
-
-if(searchInput.value ===""){
-  suggestionsContainer.style.display = "none";
-}
-
 // Initially hide the audio element
 audioPlay.style.display = "none";
+
 document.addEventListener('focusin', (e) => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
   }
 });
 
 document.addEventListener('focusout', (e) => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      document.body.style.position = '';
-      document.body.style.width = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
   }
 });
 
