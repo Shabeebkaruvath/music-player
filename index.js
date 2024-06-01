@@ -285,5 +285,54 @@ document.addEventListener('focusout', (e) => {
   }
 });
 
+
+// Function to show a custom notification with playback controls
+function showNotification(title, artist, albumArtUrl) {
+  const notification = new Notification("Now Playing", {
+    body: `${song.name} - ${song.artists[0].name}`,
+    icon: albumArtUrl,
+    actions: [
+      { action: "play", title: "Play", icon: "play.png" },
+      { action: "pause", title: "Pause", icon: "pause.png" },
+      { action: "next", title: "Next", icon: "next.png" },
+      { action: "previous", title: "Previous", icon: "previous.png" }
+    ]
+  });
+
+  // Event listener for notification button clicks
+  notification.addEventListener("click", handleNotificationClick);
+}
+
+// Function to handle notification button clicks
+function handleNotificationClick(event) {
+  const action = event.action;
+  switch (action) {
+    case "play":
+      playSong();
+      break;
+    case "pause":
+      pauseSong();
+      break;
+    case "next":
+      playNextSong();
+      break;
+    case "previous":
+      playPreviousSong();
+      break;
+    default:
+      // Handle other actions
+      break;
+  }
+}
+
+b
+
+// Example usage
+showNotification("Song Title", "Artist Name", "album-art.jpg");
+
+
+
+
+
 // Play the initial song
 playSong(currentSongIndex);
