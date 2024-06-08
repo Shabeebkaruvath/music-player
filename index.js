@@ -63,20 +63,96 @@ async function searchForSong(query) {
   displaySuggestions();
 }
 
-// Function to display search suggestions
 function displaySuggestions() {
+  // Set the display style to grid for the suggestions container
   suggestionsContainer.style.display = "grid";
+  // Clear any existing suggestions
   suggestionsContainer.innerHTML = "";
+
+  // Loop through the search results to create suggestion elements
   searchResults.forEach((result, index) => {
+    // Create a suggestion div with necessary styling
     const suggestion = document.createElement("div");
-    suggestion.style.borderBottom = "1px solid white";
-    suggestion.style.cursor = "pointer";
-    suggestion.textContent = `${result.name} - ${result.artists[0].name}`;
+    suggestion.classList.add("suggestion");
+
+    // Create a container for song details
+    const songDetails = document.createElement("div");
+    songDetails.classList.add("song-details");
+
+    // Create and style the song title element
+    const songTitle = document.createElement("div");
+    songTitle.classList.add("song-title");
+    songTitle.textContent = result.name;
+
+    // Create and style the artist name element
+    const artistName = document.createElement("div");
+    artistName.classList.add("artist-name");
+    artistName.textContent = result.artists[0].name;
+
+    // Append the title and artist elements to the song details div
+    songDetails.appendChild(songTitle);
+    songDetails.appendChild(artistName);
+
+    // Create and style the song image element
+    const songImg = document.createElement("div");
+    songImg.classList.add("song-img-sug");
+    songImg.style.backgroundImage = `url(${result.album.images[0].url})`;
+
+    // Append the song details and image elements to the suggestion div
+    suggestion.appendChild(songDetails);
+    suggestion.appendChild(songImg);
+
+    // Add click event listener to play the song when the suggestion is clicked
     suggestion.addEventListener("click", () => playSong(index));
+
+    // Append the suggestion div to the suggestions container
     suggestionsContainer.appendChild(suggestion);
   });
-  isLoading = false; // Reset loading flag after displaying suggestions
+
+  // Reset loading flag after displaying suggestions
+  isLoading = false;
 }
+
+// Add CSS to style the suggestions
+const style = document.createElement("style");
+style.innerHTML = `
+  .suggestion {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    border-bottom: 1px solid white;
+    cursor: pointer;
+    padding: 10px;
+    color: white;
+    height: 150px;
+    position: relative;
+    text-shadow: 0 1px 2px black;
+  }
+  .song-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 70%;
+    padding-right: 10px; /* Optional padding to space out content */
+  }
+  .song-img-sug {
+    width: 30%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+  }
+  .song-title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .artist-name {
+    text-align: center;
+  }
+`;
+document.head.appendChild(style);
+
 
 // Event listener for the search input field
 searchInput.addEventListener("input", (event) => {
@@ -102,8 +178,11 @@ function loadMoreSuggestions() {
 }
 
 // Add scroll event listener to window
-window.addEventListener('scroll', () => {
-  if (!isLoading && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
+window.addEventListener("scroll", () => {
+  if (
+    !isLoading &&
+    window.innerHeight + window.scrollY >= document.body.offsetHeight
+  ) {
     isLoading = true;
     loadMoreSuggestions();
   }
@@ -111,7 +190,7 @@ window.addEventListener('scroll', () => {
 
 // Function to handle song download
 function downloadSong(url, name) {
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = name;
   document.body.appendChild(link);
@@ -134,7 +213,8 @@ async function playSong(index) {
   // Show download button when a song is played
   if (song.preview_url) {
     downloadButton.style.display = "inline";
-    downloadButton.onclick = () => downloadSong(song.preview_url, `${song.name}.mp3`);
+    downloadButton.onclick = () =>
+      downloadSong(song.preview_url, `${song.name}.mp3`);
   } else {
     downloadButton.style.display = "none";
   }
@@ -146,11 +226,11 @@ async function playSong(index) {
 // Function to update the progress bar
 let isDragging = false;
 
-audioPlay.addEventListener('loadedmetadata', () => {
+audioPlay.addEventListener("loadedmetadata", () => {
   endTimeSpan.textContent = formatTime(audioPlay.duration);
 });
 
-audioPlay.addEventListener('timeupdate', () => {
+audioPlay.addEventListener("timeupdate", () => {
   updateProgressBar();
 });
 
@@ -170,15 +250,15 @@ function updateProgressBar() {
 function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60);
   seconds = Math.floor(seconds % 60);
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 }
 
 // Event listener for mouse events to handle progress bar dragging
-progressHandle.addEventListener('mousedown', () => {
+progressHandle.addEventListener("mousedown", () => {
   isDragging = true;
 });
 
-document.addEventListener('mousemove', (e) => {
+document.addEventListener("mousemove", (e) => {
   if (isDragging) {
     const rect = progressContainer.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
@@ -189,7 +269,7 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
-document.addEventListener('mouseup', () => {
+document.addEventListener("mouseup", () => {
   isDragging = false;
 });
 
@@ -209,7 +289,8 @@ musicPause.addEventListener("click", () => {
 // Event listener for the previous button
 musicPre.addEventListener("click", () => {
   do {
-    currentSongIndex = (currentSongIndex - 1 + searchResults.length) % searchResults.length;
+    currentSongIndex =
+      (currentSongIndex - 1 + searchResults.length) % searchResults.length;
   } while (searchResults[currentSongIndex].preview_url === null);
   playSong(currentSongIndex);
 });
@@ -263,7 +344,7 @@ audioPlay.addEventListener("ended", () => {
 
 // Clear search input on button click
 searchClear.addEventListener("click", () => {
-  searchInput.value = '';
+  searchInput.value = "";
   suggestionsContainer.innerHTML = "";
   suggestionsContainer.style.display = "none";
 });
@@ -271,20 +352,19 @@ searchClear.addEventListener("click", () => {
 // Initially hide the audio element
 audioPlay.style.display = "none";
 
-document.addEventListener('focusin', (e) => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
+document.addEventListener("focusin", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
   }
 });
 
-document.addEventListener('focusout', (e) => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-    document.body.style.position = '';
-    document.body.style.width = '';
+document.addEventListener("focusout", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+    document.body.style.position = "";
+    document.body.style.width = "";
   }
 });
-
 
 // Function to show a custom notification with playback controls
 function showNotification(title, artist, albumArtUrl) {
@@ -295,8 +375,8 @@ function showNotification(title, artist, albumArtUrl) {
       { action: "play", title: "Play", icon: "play.png" },
       { action: "pause", title: "Pause", icon: "pause.png" },
       { action: "next", title: "Next", icon: "next.png" },
-      { action: "previous", title: "Previous", icon: "previous.png" }
-    ]
+      { action: "previous", title: "Previous", icon: "previous.png" },
+    ],
   });
 
   // Event listener for notification button clicks
@@ -325,14 +405,10 @@ function handleNotificationClick(event) {
   }
 }
 
-b
+b;
 
 // Example usage
 showNotification("Song Title", "Artist Name", "album-art.jpg");
-
-
-
-
 
 // Play the initial song
 playSong(currentSongIndex);
