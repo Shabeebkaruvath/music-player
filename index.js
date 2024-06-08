@@ -117,42 +117,48 @@ function displaySuggestions() {
 const style = document.createElement("style");
 style.innerHTML = `
   .suggestion {
-    display: flex;
+        display: flex;
     flex-direction: row-reverse;
-    align-items: center;
-    border-bottom: 1px solid white;
+    background:black;
+    height: 50px;
     cursor: pointer;
     padding: 10px;
     color: white;
-    height: 150px;
+    height: 100px;
     position: relative;
-    text-shadow: 0 1px 2px black;
+    justify-content: flex-end;
+    align-items: stretch;
+}
   }
   .song-details {
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 70%;
-    padding-right: 10px; /* Optional padding to space out content */
+    
   }
   .song-img-sug {
-    width: 30%;
-    height: 100%;
+    width: 70px;
+    height: 70px;
     background-size: cover;
     background-position: center;
     border-radius: 10px;
   }
   .song-title {
-    font-weight: bold;
-    text-align: center;
+    
+    text-align:  start;
     margin-bottom: 10px;
+    color: white;
+    margin-left: 15px;
   }
   .artist-name {
-    text-align: center;
+    text-align: start;
+    color: white;
+    margin-left: 15px;
   }
 `;
 document.head.appendChild(style);
-
 
 // Event listener for the search input field
 searchInput.addEventListener("input", (event) => {
